@@ -1,0 +1,12 @@
+# This language file must be UTF-8 without BOM and LF!
+container.generator=?
+container.eugenerator=Infinite EU Generator
+container.mjgenerator=Infinite MJ Generator
+container.tickamount=?
+container.eutickamount=EUs per tick
+container.mjtickamount=MJs per tick
+container.tickwait=Ticks wait
+item.infiniteorb.name=Infinite Orb
+tile.generator.name=?
+tile.eugenerator.name=Infinite EU Generator
+tile.mjgenerator.name=Infinite MJ Generator

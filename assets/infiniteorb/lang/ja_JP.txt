@@ -1,0 +1,12 @@
+# This language file must be UTF-8 without BOM and LF!
+container.generator=?
+container.eugenerator=無限EUジェネレーター
+container.mjgenerator=無限MJジェネレーター
+container.tickamount=?
+container.eutickamount=EUをtick毎に
+container.mjtickamount=MJをtick毎に
+container.tickwait=tick間隔
+item.infiniteorb.name=無限オーブ
+tile.generator.name=?
+tile.eugenerator.name=無限EUジェネレーター
+tile.mjgenerator.name=無限MJジェネレーター
