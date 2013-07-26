@@ -9,7 +9,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid = "InfiniteOrb", version = "0.1")
+@Mod(modid = "InfiniteOrb", version = "0.2")
 @NetworkMod(clientSideRequired = true,  packetHandler = PacketHandler.class, channels = {"INFORB__"})
 public final class InfiniteOrb
 {
