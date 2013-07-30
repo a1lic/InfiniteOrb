@@ -9,7 +9,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 
-@Mod(modid = "InfiniteOrb", version = "0.2")
+@Mod(modid = "InfiniteOrb", version = "0.3")
 @NetworkMod(clientSideRequired = true,  packetHandler = PacketHandler.class, channels = {"INFORB__"})
 public final class InfiniteOrb
 {
@@ -21,7 +21,6 @@ public final class InfiniteOrb
 	public static CommonProxy proxy;
 
 	@Mod.EventHandler
-//	@Mod.PreInit
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		File configFile = event.getSuggestedConfigurationFile();
