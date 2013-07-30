@@ -10,6 +10,7 @@ import mods.alice.infiniteorb.EnergyType;
 import mods.alice.infiniteorb.InfiniteOrb;
 import mods.alice.infiniteorb.ItemList;
 import mods.alice.infiniteorb.ItemManager;
+import mods.alice.infiniteorb.creativetab.CreativeTabInfiniteOrb;
 import mods.alice.infiniteorb.item.block.ItemBlockGenerator;
 import mods.alice.infiniteorb.tileentity.TileEntityGenerator;
 import net.minecraft.block.BlockContainer;
@@ -37,7 +38,7 @@ public final class BlockGenerator extends BlockContainer
 		super(id, Material.iron);
 
 		disableStats();
-		setCreativeTab(CreativeTabs.tabDecorations);
+		setCreativeTab(CreativeTabInfiniteOrb.INSTANCE);
 		setHardness(2);
 
 		ItemManager.addBlock(this);

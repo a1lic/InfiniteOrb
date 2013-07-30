@@ -8,6 +8,7 @@ import ic2.api.item.ISpecialElectricItem;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mods.alice.infiniteorb.ItemManager;
+import mods.alice.infiniteorb.creativetab.CreativeTabInfiniteOrb;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -21,8 +22,8 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 {
 	public ItemInfiniteOrb(int itemID)
 	{
-		super(itemID);
-		setCreativeTab(CreativeTabs.tabTools);
+		super(itemID - 256);
+		setCreativeTab(CreativeTabInfiniteOrb.INSTANCE);
 //		setMaxStackSize(1);
 		setUnlocalizedName("infiniteorb");
 
