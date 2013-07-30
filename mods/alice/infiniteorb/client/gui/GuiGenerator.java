@@ -3,6 +3,7 @@ package mods.alice.infiniteorb.client.gui;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
@@ -33,7 +34,9 @@ public final class GuiGenerator extends GuiContainer
 	private GuiTextField outputTick;
 	private GuiTextField outputPerTick;
 	private GuiButton applyButton;
+	private List<GuiTextField> textFields = new ArrayList<GuiTextField>();
 	private TileEntityGenerator generator;
+	private byte frameCount;
 
 	public GuiGenerator(EntityPlayer player, World world, EnergyType type, TileEntityGenerator gen)
 	{
@@ -118,6 +121,8 @@ public final class GuiGenerator extends GuiContainer
 			{
 			}
 		}
+
+		mc.thePlayer.closeScreen();
 	}
 
 	@Override
@@ -149,13 +154,29 @@ public final class GuiGenerator extends GuiContainer
 	{
 		super.drawScreen(x, y, par3);
 
-//		outputAmount.updateCursorCounter();
-//		outputTick.updateCursorCounter();
-//		outputPerTick.updateCursorCounter();
+		GL11.glDisable(GL11.GL_LIGHTING);
 
-		outputAmount.drawTextBox();
-		outputTick.drawTextBox();
-		outputPerTick.drawTextBox();
+		frameCount++;
+
+		if((frameCount == 5) || (frameCount == 10))
+		{
+			for(GuiTextField f : textFields)
+			{
+				f.updateCursorCounter();
+			}
+
+			if(frameCount == 10)
+			{
+				frameCount = 0;
+			}
+		}
+
+		for(GuiTextField f : textFields)
+		{
+			f.drawTextBox();
+		}
+
+		GL11.glEnable(GL11.GL_LIGHTING);
 	}
 
 	@Override
@@ -172,26 +193,27 @@ public final class GuiGenerator extends GuiContainer
 		yCenter = (height - ySize) / 2;
 
 		num = new Integer(generator.outputAmount);
-		outputAmount = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 20, 40, 10);
+		outputAmount = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 20, 35, 10);
 		outputAmount.setText(num.toString());
-		outputAmount.setTextColor(0xFFFFFF);
 		outputAmount.setEnableBackgroundDrawing(false);
 
 		num = new Integer(generator.outputTick);
-		outputTick = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 35, 40, 10);
+		outputTick = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 35, 35, 10);
 		outputTick.setText(num.toString());
-		outputTick.setTextColor(0xFFFFFF);
 		outputTick.setEnableBackgroundDrawing(false);
 
 		num = new Integer(generator.outputPerTick);
-		outputPerTick = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 50, 40, 10);
+		outputPerTick = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 50, 35, 10);
 		outputPerTick.setText(num.toString());
-		outputPerTick.setTextColor(0xFFFFFF);
 		outputPerTick.setEnableBackgroundDrawing(false);
 
 		applyButton = new GuiButton(1, xCenter + 125, yCenter + 45, 40, 20, "OK");
 
 		_buttonList.add(applyButton);
+
+		textFields.add(outputAmount);
+		textFields.add(outputTick);
+		textFields.add(outputPerTick);
 	}
 
 	private static void doKeyTyped(GuiTextField textField, GuiButton button)
@@ -226,20 +248,13 @@ public final class GuiGenerator extends GuiContainer
 	@Override
 	protected void keyTyped(char keyChar, int keyCode)
 	{
-		if(outputAmount.textboxKeyTyped(keyChar, keyCode))
+		for(GuiTextField f : textFields)
 		{
-			doKeyTyped(outputAmount, applyButton);
-			return;
-		}
-		if(outputTick.textboxKeyTyped(keyChar, keyCode))
-		{
-			doKeyTyped(outputTick, applyButton);
-			return;
-		}
-		if(outputPerTick.textboxKeyTyped(keyChar, keyCode))
-		{
-			doKeyTyped(outputPerTick, applyButton);
-			return;
+			if(f.textboxKeyTyped(keyChar, keyCode))
+			{
+				doKeyTyped(f, applyButton);
+				return;
+			}
 		}
 
 		super.keyTyped(keyChar, keyCode);
