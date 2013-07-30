@@ -142,13 +142,11 @@ public final class BlockGenerator extends BlockContainer
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float px, float py, float pz)
 	{
-//		TileEntity tileEntity;
-
 		if(!world.isRemote)
 		{
-//			tileEntity = world.getBlockTileEntity(x, y, z);
 			player.openGui(InfiniteOrb.getInstance(), 0, world, x, y, z);
 		}
+
 		return true;
 	}
 

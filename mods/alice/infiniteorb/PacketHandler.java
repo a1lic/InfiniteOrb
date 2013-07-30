@@ -59,7 +59,7 @@ public final class PacketHandler implements IPacketHandler
 				nums[i] = stream.readInt();
 			}
 
-			world = ((EntityPlayer)player).worldObj;
+			world = player.worldObj;
 
 			entity = world.getBlockTileEntity(nums[0], nums[1], nums[2]);
 			if(entity == null)

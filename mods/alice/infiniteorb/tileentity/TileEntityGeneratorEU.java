@@ -1,5 +1,8 @@
 package mods.alice.infiniteorb.tileentity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event;
@@ -13,8 +16,6 @@ import ic2.api.energy.tile.IEnergySource;
 
 public final class TileEntityGeneratorEU extends TileEntityGenerator implements IEnergyEmitter, IEnergySource
 {
-	private EnergyTileSourceEvent emitEvent;
-	private EnergyTileSourceEvent emitEventRemaind;
 	private boolean addedToEnergyNet = false;
 	private int separates;
 	private int remain;
@@ -36,22 +37,6 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 		{
 			separates = outputAmount / outputPerTick;
 			remain = outputAmount % outputPerTick;
-
-			emitEvent = new EnergyTileSourceEvent(this, outputPerTick);
-
-			if(remain > 0)
-			{
-				emitEventRemaind = new EnergyTileSourceEvent(this, remain);
-			}
-			else
-			{
-				emitEventRemaind = null;
-			}
-		}
-		else
-		{
-			emitEvent = null;
-			emitEventRemaind = null;
 		}
 	}
 
@@ -97,6 +82,8 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 	{
 		Event event;
 		EventBus bus;
+		EnergyTileSourceEvent emitEvent;
+		List<EnergyTileSourceEvent> packetsToEmit = new ArrayList<>();
 
 		if(worldObj.isRemote)
 		{
@@ -112,49 +99,44 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 			addedToEnergyNet = true;
 		}
 
-		if(worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord))
+		if(!worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord))
 		{
-			if(tickToNextOut < 0)
+			return;
+		}
+
+		if(tickToNextOut < 0)
+		{
+			tickToNextOut = 0;
+		}
+
+		if(tickToNextOut >= outputTick)
+		{
+			tickToNextOut = 0;
+
+			if(separates > 0)
 			{
-				tickToNextOut = 0;
-			}
-
-			if(tickToNextOut >= outputTick)
-			{
-				tickToNextOut = 0;
-
-				if(separates > 0)
+				for(int i = 0; i < separates; i++)
 				{
-					// Emit EU!
-					for(int i = 0; i < separates; i++)
-					{
-						try
-						{
-							event = new EnergyTileSourceEvent(this, outputPerTick);
-							bus.post(event);
-						}
-						catch(IllegalArgumentException e)
-						{
-						}
-					}
-				}
-
-				if(remain > 0)
-				{
-					try
-					{
-						event = new EnergyTileSourceEvent(this, remain);
-						bus.post(event);
-					}
-					catch(IllegalArgumentException e)
-					{
-					}
+					emitEvent = new EnergyTileSourceEvent(this, outputPerTick);
+					packetsToEmit.add(emitEvent);
 				}
 			}
-			else
+
+			if(remain > 0)
 			{
-				tickToNextOut++;
+				emitEvent = new EnergyTileSourceEvent(this, remain);
+				packetsToEmit.add(emitEvent);
 			}
+
+			// Emit EU!
+			for(EnergyTileSourceEvent e : packetsToEmit)
+			{
+				bus.post(e);
+			}
+		}
+		else
+		{
+			tickToNextOut++;
 		}
 	}
 
