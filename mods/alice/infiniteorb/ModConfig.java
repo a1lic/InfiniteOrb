@@ -54,7 +54,7 @@ public final class ModConfig
 
 	private static short getItemId(Property p)
 	{
-		return (short)Math.min(Math.max(p.getInt(), 4096 - 256), 32767 - 256);
+		return (short)Math.min(Math.max(p.getInt(), 4096), 32767);
 	}
 
 	private static short getBlockId(Property p)
