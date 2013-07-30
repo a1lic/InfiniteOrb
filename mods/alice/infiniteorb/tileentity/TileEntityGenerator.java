@@ -45,12 +45,6 @@ public abstract class TileEntityGenerator extends TileEntity
 	public abstract void updateParameters(int outAmount, int outPerTick, int outTick);
 
 	@Override
-	public boolean canUpdate()
-	{
-		return true;
-	}
-
-	@Override
 	public Packet getDescriptionPacket()
 	{
 		NBTTagCompound tag;

@@ -25,6 +25,8 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 		outputPerTick = 32;
 		outputTick = 0;
 		tickToNextOut = 0;
+
+		updateParameters();
 	}
 
 	@Override
@@ -66,6 +68,13 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 	@Override
 	public void invalidate()
 	{
+		onChunkUnload();
+		super.invalidate();
+	}
+
+	@Override
+	public void onChunkUnload()
+	{
 		Event event;
 		EventBus bus;
 
@@ -81,8 +90,6 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 				addedToEnergyNet = false;
 			}
 		}
-
-		super.invalidate();
 	}
 
 	@Override
@@ -116,36 +123,31 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 			{
 				tickToNextOut = 0;
 
-				if(emitEvent != null)
+				if(separates > 0)
 				{
-					if(emitEvent.world == null)
-					{
-						updateParameters();
-					}
-
 					// Emit EU!
 					for(int i = 0; i < separates; i++)
 					{
 						try
 						{
-							bus.post(emitEvent);
+							event = new EnergyTileSourceEvent(this, outputPerTick);
+							bus.post(event);
 						}
 						catch(IllegalArgumentException e)
 						{
 						}
-						emitEvent.amount = outputPerTick;
 					}
+				}
 
-					if(emitEventRemaind != null)
+				if(remain > 0)
+				{
+					try
 					{
-						try
-						{
-							bus.post(emitEventRemaind);
-						}
-						catch(IllegalArgumentException e)
-						{
-						}
-						emitEventRemaind.amount = remain;
+						event = new EnergyTileSourceEvent(this, remain);
+						bus.post(event);
+					}
+					catch(IllegalArgumentException e)
+					{
 					}
 				}
 			}
