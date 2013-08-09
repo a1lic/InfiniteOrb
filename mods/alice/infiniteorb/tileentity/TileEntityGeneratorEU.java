@@ -113,6 +113,11 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 		{
 			tickToNextOut = 0;
 
+			if(outputPerTick <= 0)
+			{
+				return;
+			}
+
 			if(separates > 0)
 			{
 				for(int i = 0; i < separates; i++)

@@ -1,15 +1,166 @@
 package mods.alice.infiniteorb.tileentity;
 
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
-import buildcraft.api.core.SafeTimeTracker;
-import buildcraft.api.power.IPowerProvider;
+import buildcraft.api.power.IPowerEmitter;
 import buildcraft.api.power.IPowerReceptor;
+import buildcraft.api.power.PowerHandler;
+import buildcraft.api.power.PowerHandler.PowerReceiver;
 
-public final class TileEntityGeneratorMJ extends TileEntityGenerator implements IPowerProvider
+public final class TileEntityGeneratorMJ extends TileEntityGenerator implements IPowerEmitter
 {
+	private static ForgeDirection sides[] = new ForgeDirection[6];
+	private static ForgeDirection oSides[] = new ForgeDirection[6];
+	private TileEntity tiles[] = new TileEntity[6];
+	private byte tick;
+
+	static
+	{
+		sides[0] = ForgeDirection.SOUTH;
+		sides[1] = ForgeDirection.NORTH;
+		sides[2] = ForgeDirection.EAST;
+		sides[3] = ForgeDirection.WEST;
+		sides[4] = ForgeDirection.DOWN;
+		sides[5] = ForgeDirection.UP;
+
+		oSides[0] = ForgeDirection.NORTH;
+		oSides[1] = ForgeDirection.SOUTH;
+		oSides[2] = ForgeDirection.WEST;
+		oSides[3] = ForgeDirection.EAST;
+		oSides[4] = ForgeDirection.UP;
+		oSides[5] = ForgeDirection.DOWN;
+	}
+
+	public TileEntityGeneratorMJ()
+	{
+		outputAmount = 32;
+		outputPerTick = 32;
+		outputTick = 0;
+		tickToNextOut = 0;
+
+		updateParameters();
+	}
+
 	@Override
 	public void updateEntity()
 	{
+		PowerReceiver h;
+		TileEntity tile;
+		float currentPower, maxPower, amountToSupply, powerPerTick;
+
+		if(worldObj.isRemote)
+		{
+			return;
+		}
+
+		if(tick >= 10)
+		{
+			// Check tile entities around this block.
+			// NORTH
+			tiles[0] = worldObj.getBlockTileEntity(xCoord, yCoord, zCoord - 1);
+			// SOUTH
+			tiles[1] = worldObj.getBlockTileEntity(xCoord, yCoord, zCoord + 1);
+			// WEST
+			tiles[2] = worldObj.getBlockTileEntity(xCoord - 1, yCoord, zCoord);
+			// EAST
+			tiles[3] = worldObj.getBlockTileEntity(xCoord + 1, yCoord, zCoord);
+			// UP
+			tiles[4] = worldObj.getBlockTileEntity(xCoord, yCoord + 1, zCoord);
+			// BOTTOM
+			tiles[5] = worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
+
+			tick = 0;
+		}
+		else if(tick < 0)
+		{
+			tick = 0;
+		}
+		else
+		{
+			tick++;
+		}
+
+		if(!worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord))
+		{
+			return;
+		}
+
+		if(tickToNextOut < 0)
+		{
+			tickToNextOut = 0;
+		}
+
+		if(tickToNextOut >= outputTick)
+		{
+			tickToNextOut = 0;
+
+			if(outputPerTick <= 0)
+			{
+				return;
+			}
+
+			for(byte i = 0; i < 6; i++)
+			{
+				tile = tiles[i];
+
+				if(tile == null)
+				{
+					continue;
+				}
+				if(!(tile instanceof IPowerReceptor))
+				{
+					continue;
+				}
+
+				h = ((IPowerReceptor)tile).getPowerReceiver(sides[i]);
+
+				if(h == null)
+				{
+					continue;
+				}
+
+				currentPower = h.getEnergyStored();
+				maxPower = h.getMaxEnergyStored();
+				powerPerTick = h.getMaxEnergyReceived();
+
+				if(currentPower >= maxPower)
+				{
+					continue;
+				}
+
+				amountToSupply = maxPower - currentPower;
+
+				if(amountToSupply > outputAmount)
+				{
+					amountToSupply = outputAmount;
+				}
+
+				if(powerPerTick > this.outputPerTick)
+				{
+					powerPerTick = outputPerTick;
+				}
+
+				try
+				{
+					for(; amountToSupply >= powerPerTick; amountToSupply -= powerPerTick)
+					{
+						h.receiveEnergy(PowerHandler.Type.ENGINE, powerPerTick, oSides[i]);
+					}
+
+					if(amountToSupply > 0)
+					{
+						h.receiveEnergy(PowerHandler.Type.ENGINE, amountToSupply, oSides[i]);
+					}
+				}
+				catch(Exception e)
+				{
+				}
+			}
+		}
+		else
+		{
+			tickToNextOut++;
+		}
 	}
 
 	@Override
@@ -20,88 +171,16 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 	@Override
 	public void updateParameters(int outAmount, int outPerTick, int outTick)
 	{
+		outputAmount = outAmount;
+		outputPerTick = outPerTick;
+		outputTick = outTick;
 	}
 
-	// IPowerProvider implementations.
+	// IPowerEmitter implementations.
 
 	@Override
-	public int getLatency()
+	public boolean canEmitPowerFrom(ForgeDirection side)
 	{
-		return 0;
-	}
-
-	@Override
-	public int getMinEnergyReceived()
-	{
-		return 0;
-	}
-
-	@Override
-	public int getMaxEnergyReceived()
-	{
-		return 0;
-	}
-
-	@Override
-	public int getMaxEnergyStored()
-	{
-		return 0;
-	}
-
-	@Override
-	public int getActivationEnergy()
-	{
-		return 0;
-	}
-
-	@Override
-	public float getEnergyStored()
-	{
-		return 0;
-	}
-
-	@Override
-	public void configure(int latency, int minEnergyReceived, int maxEnergyReceived, int minActivationEnergy, int maxStoredEnergy)
-	{
-	}
-
-	@Override
-	public void configurePowerPerdition(int powerLoss, int powerLossRegularity)
-	{
-	}
-
-	@Override
-	public boolean update(IPowerReceptor receptor)
-	{
-		return false;
-	}
-
-	@Override
-	public boolean preConditions(IPowerReceptor receptor)
-	{
-		return false;
-	}
-
-	@Override
-	public float useEnergy(float min, float max, boolean doUse)
-	{
-		return 0;
-	}
-
-	@Override
-	public void receiveEnergy(float quantity, ForgeDirection from)
-	{
-	}
-
-	@Override
-	public boolean isPowerSource(ForgeDirection from)
-	{
-		return false;
-	}
-
-	@Override
-	public SafeTimeTracker getTimeTracker()
-	{
-		return null;
+		return true;
 	}
 }
