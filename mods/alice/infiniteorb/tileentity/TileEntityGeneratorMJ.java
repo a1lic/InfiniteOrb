@@ -112,7 +112,7 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 					continue;
 				}
 
-				h = ((IPowerReceptor)tile).getPowerReceiver(sides[i]);
+				h = ((IPowerReceptor)tile).getPowerReceiver(oSides[i]);
 
 				if(h == null)
 				{
@@ -144,12 +144,12 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 				{
 					for(; amountToSupply >= powerPerTick; amountToSupply -= powerPerTick)
 					{
-						h.receiveEnergy(PowerHandler.Type.ENGINE, powerPerTick, oSides[i]);
+						h.receiveEnergy(PowerHandler.Type.ENGINE, powerPerTick, sides[i]);
 					}
 
 					if(amountToSupply > 0)
 					{
-						h.receiveEnergy(PowerHandler.Type.ENGINE, amountToSupply, oSides[i]);
+						h.receiveEnergy(PowerHandler.Type.ENGINE, amountToSupply, sides[i]);
 					}
 				}
 				catch(Exception e)
