@@ -1,24 +1,18 @@
 package mods.alice.infiniteorb.tileentity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event;
 import net.minecraftforge.event.EventBus;
-import ic2.api.Direction;
 import ic2.api.energy.event.EnergyTileLoadEvent;
-import ic2.api.energy.event.EnergyTileSourceEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
-import ic2.api.energy.tile.IEnergyEmitter;
 import ic2.api.energy.tile.IEnergySource;
 
-public final class TileEntityGeneratorEU extends TileEntityGenerator implements IEnergyEmitter, IEnergySource
+public final class TileEntityGeneratorEU extends TileEntityGenerator implements IEnergySource
 {
 	private boolean addedToEnergyNet = false;
-	private int separates;
-	private int remain;
+	private double storage;
 
 	public TileEntityGeneratorEU()
 	{
@@ -33,11 +27,6 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 	@Override
 	public void updateParameters()
 	{
-		if(outputPerTick > 0)
-		{
-			separates = outputAmount / outputPerTick;
-			remain = outputAmount % outputPerTick;
-		}
 	}
 
 	@Override
@@ -82,8 +71,6 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 	{
 		Event event;
 		EventBus bus;
-		EnergyTileSourceEvent emitEvent;
-		List<EnergyTileSourceEvent> packetsToEmit = new ArrayList<>();
 
 		if(worldObj.isRemote)
 		{
@@ -118,25 +105,9 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 				return;
 			}
 
-			if(separates > 0)
+			if(storage < outputAmount)
 			{
-				for(int i = 0; i < separates; i++)
-				{
-					emitEvent = new EnergyTileSourceEvent(this, outputPerTick);
-					packetsToEmit.add(emitEvent);
-				}
-			}
-
-			if(remain > 0)
-			{
-				emitEvent = new EnergyTileSourceEvent(this, remain);
-				packetsToEmit.add(emitEvent);
-			}
-
-			// Emit EU!
-			for(EnergyTileSourceEvent e : packetsToEmit)
-			{
-				bus.post(e);
+				storage += outputAmount;
 			}
 		}
 		else
@@ -151,18 +122,10 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 		super.validate();
 	}
 
-	// IEnergyTile implementation.
-
-	@Override
-	public boolean isAddedToEnergyNet()
-	{
-		return addedToEnergyNet;
-	}
-
 	// IEnergyEmitter implementation.
 
 	@Override
-	public boolean emitsEnergyTo(TileEntity receiver, Direction direction)
+	public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection direction)
 	{
 		return true;
 	}
@@ -170,8 +133,27 @@ public final class TileEntityGeneratorEU extends TileEntityGenerator implements 
 	// IEnergySource implementation.
 
 	@Override
-	public int getMaxEnergyOutput()
+	public double getOfferedEnergy()
 	{
-		return outputPerTick;
+		if(!worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord))
+		{
+			return 0;
+		}
+
+		if(storage < 1)
+		{
+			return 0;
+		}
+
+		return (double)Math.min(outputAmount, outputPerTick);
+	}
+
+	@Override
+	public void drawEnergy(double amount)
+	{
+		if(storage >= amount)
+		{
+			storage -= amount;
+		}
 	}
 }
