@@ -18,6 +18,7 @@ public final class ModConfig
 
 		addBlockConfig(config, ItemList.GENERATOR);
 		addItemConfig(config, ItemList.INFINITEORB);
+		addItemConfig(config, ItemList.HAMMER);
 
 		config.save();
 	}

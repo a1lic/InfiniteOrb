@@ -9,7 +9,11 @@ public enum ItemList
 	/**
 	 * Infinite EU battery.
 	 */
-	INFINITEORB(23461, "infiniteorb", true);
+	INFINITEORB(23461, "infiniteorb", true),
+	/**
+	 * MJ Hammer
+	 */
+	HAMMER(23462, "hammer", true);
 
 	public final short defaultID;
 	public final String itemName;

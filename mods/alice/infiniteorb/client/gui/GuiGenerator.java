@@ -131,7 +131,7 @@ public final class GuiGenerator extends GuiContainer
 		int xCenter, yCenter;
 
 		GL11.glColor4f(1, 1, 1, 1);
-		mc.renderEngine.func_110577_a(gui);
+		mc.renderEngine.bindTexture(gui);
 
 		xCenter = (width - xSize) / 2;
 		yCenter = (height - ySize) / 2;

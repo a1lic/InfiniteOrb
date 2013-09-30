@@ -60,9 +60,9 @@ public abstract class TileEntityGenerator extends TileEntity
 	{
 		if((pkt.xPosition == xCoord) && (pkt.yPosition == yCoord) && (pkt.zPosition == zCoord))
 		{
-			if(pkt.customParam1 != null)
+			if(pkt.data != null)
 			{
-				readFromNBT(pkt.customParam1);
+				readFromNBT(pkt.data);
 			}
 		}
 	}
