@@ -146,6 +146,12 @@ public final class BlockGenerator extends BlockContainer
 	}
 
 	@Override
+	public boolean isOpaqueCube()
+	{
+		return false;
+	}
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister)
 	{
