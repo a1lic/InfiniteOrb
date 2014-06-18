@@ -9,7 +9,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mods.alice.infiniteorb.ItemManager;
 import mods.alice.infiniteorb.creativetab.CreativeTabInfiniteOrb;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,9 +20,9 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem, IElectricItemManager, IEnergyValueProvider
 {
-	public ItemInfiniteOrb(int itemID)
+	public ItemInfiniteOrb()
 	{
-		super(itemID - 256);
+		super();
 		setCreativeTab(CreativeTabInfiniteOrb.INSTANCE);
 //		setMaxStackSize(1);
 		setUnlocalizedName("infiniteorb");
@@ -32,6 +32,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 
 	/* IEnergyValueProvider implementations */
 
+	@Override
 	public int getEnergyValue(ItemStack itemStack)
 	{
 		return Integer.MAX_VALUE;
@@ -41,6 +42,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 
 	/* ISpecialElectricItem implementations */
 
+	@Override
 	public IElectricItemManager getManager(ItemStack paramItemStack)
 	{
 		return this;
@@ -50,6 +52,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 
 	/* IElectricItemManager implementations */
 
+	@Override
 	public int charge(ItemStack itemStack, int amount, int tier, boolean ignoreTransferLimit, boolean simulate)
 	{
 		int limit;
@@ -70,6 +73,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 		return amount;
 	}
 
+	@Override
 	public int discharge(ItemStack itemStack, int amount, int tier, boolean ignoreTransferLimit, boolean simulate)
 	{
 		int limit;
@@ -90,25 +94,30 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 		return amount;
 	}
 
+	@Override
 	public int getCharge(ItemStack itemStack)
 	{
 		return Integer.MAX_VALUE;
 	}
 
+	@Override
 	public boolean canUse(ItemStack itemStack, int amount)
 	{
 		return true;
 	}
 
+	@Override
 	public boolean use(ItemStack itemStack, int amount, EntityLivingBase entity)
 	{
 		return true;
 	}
 
+	@Override
 	public void chargeFromArmor(ItemStack itemStack, EntityLivingBase entity)
 	{
 	}
 
+	@Override
 	public String getToolTip(ItemStack itemStack)
 	{
 		return "This orb have infinite EU!";
@@ -118,26 +127,31 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 
 	/* IElectricItem implementations */
 
+	@Override
 	public boolean canProvideEnergy(ItemStack itemStack)
 	{
 		return true;
 	}
 
-	public int getChargedItemId(ItemStack itemStack)
+	@Override
+	public Item getChargedItem(ItemStack itemStack)
 	{
-		return itemID;
+		return this;
 	}
 
-	public int getEmptyItemId(ItemStack itemStack)
+	@Override
+	public Item getEmptyItem(ItemStack itemStack)
 	{
-		return itemID;
+		return this;
 	}
 
+	@Override
 	public int getMaxCharge(ItemStack itemStack)
 	{
 		return Integer.MAX_VALUE;
 	}
 
+	@Override
 	public int getTier(ItemStack itemStack)
 	{
 		NBTTagCompound tag;
@@ -151,6 +165,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 		return tag.getByte("Tier");
 	}
 
+	@Override
 	public int getTransferLimit(ItemStack itemStack)
 	{
 		return 65536;
@@ -182,7 +197,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(int id, CreativeTabs tab, @SuppressWarnings("rawtypes") List list)
+	public void getSubItems(Item id, CreativeTabs tab, @SuppressWarnings("rawtypes") List list)
 	{
 		ItemStack i;
 		NBTTagCompound tag;
@@ -222,7 +237,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister iconReg)
+	public void registerIcons(IIconRegister iconReg)
 	{
 		itemIcon = iconReg.registerIcon("infiniteorb:infiniteorb");
 	}

@@ -7,9 +7,9 @@ import net.minecraft.item.ItemStack;
 
 public final class ItemBlockGenerator extends ItemBlockWithMetadata
 {
-	public ItemBlockGenerator(int id, Block block)
+	public ItemBlockGenerator(Block block)
 	{
-		super(id, block);
+		super(block, block);
 	}
 
 	@Override

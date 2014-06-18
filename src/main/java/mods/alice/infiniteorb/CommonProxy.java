@@ -1,6 +1,6 @@
 package mods.alice.infiniteorb;
 
-import ic2.api.item.Items;
+import ic2.api.item.IC2Items;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,6 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-
 import mods.alice.infiniteorb.block.BlockGenerator;
 import mods.alice.infiniteorb.inventory.ContainerGenerator;
 import mods.alice.infiniteorb.item.ItemHammer;
@@ -29,7 +28,7 @@ import mods.alice.infiniteorb.item.ItemInfiniteOrb;
 import mods.alice.infiniteorb.tileentity.TileEntityGenerator;
 import mods.alice.infiniteorb.tileentity.TileEntityGeneratorEU;
 import mods.alice.infiniteorb.tileentity.TileEntityGeneratorMJ;
-
+import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -48,29 +47,24 @@ public class CommonProxy implements IGuiHandler
 
 	public void init(InfiniteOrb instance)
 	{
-		NetworkRegistry network = NetworkRegistry.instance();
+		NetworkRegistry network = NetworkRegistry.INSTANCE;
 		network.registerGuiHandler(instance, this);
+
+		FMLEventChannel event = NetworkRegistry.INSTANCE.newEventDrivenChannel("INFORB__");
+		event.register(new PacketHandler());
 
 		addRecipes();
 	}
 
 	protected void addBlocks()
 	{
-		int blockID;
-
-		blockID = ModConfig.getItemID(ItemList.GENERATOR);
-		new BlockGenerator(blockID);
+		new BlockGenerator();
 	}
 
 	protected void addItems()
 	{
-		int itemID;
-
-		itemID = ModConfig.getItemID(ItemList.INFINITEORB);
-		new ItemInfiniteOrb(itemID);
-
-		itemID = ModConfig.getItemID(ItemList.HAMMER);
-		new ItemHammer(itemID);
+		new ItemInfiniteOrb();
+		new ItemHammer();
 	}
 
 	protected void addTileEntity()
@@ -96,36 +90,34 @@ public class CommonProxy implements IGuiHandler
 		craftItem = new ItemStack(craftBlock, 1, 0);
 		requireItems = new ItemStack[9];
 
-		requireItems[1] = new ItemStack(Block.beacon, 1, 0);
+		requireItems[1] = new ItemStack(Block.getBlockFromName("beacon"), 1, 0);
 
-		requireItems[0] = Items.getItem("iridiumPlate");
+		requireItems[0] = IC2Items.getItem("iridiumPlate");
 		if(requireItems[0] != null)
 		{
 			requireItems[2] = requireItems[0];
-			requireItems[3] = Items.getItem("elemotor");
-			requireItems[4] = Items.getItem("mfsUnit");
+			requireItems[3] = IC2Items.getItem("elemotor");
+			requireItems[4] = IC2Items.getItem("mfsUnit");
 			requireItems[5] = requireItems[3];
-			requireItems[6] = Items.getItem("advancedMachine");
-			requireItems[7] = Items.getItem("hvTransformer");
+			requireItems[6] = IC2Items.getItem("advancedMachine");
+			requireItems[7] = IC2Items.getItem("hvTransformer");
 			requireItems[8] = requireItems[6];
 		}
 		else
 		{
-			requireItems[0] = new ItemStack(Item.diamond, 1, 0);
+			requireItems[0] = new ItemStack((Item)Item.itemRegistry.getObject("diamond"), 1, 0);
 
 			requireItems[2] = requireItems[0];
-			requireItems[3] = new ItemStack(Block.torchRedstoneActive, 1, 0);
-			requireItems[4] = new ItemStack(Block.glowStone, 1, 0);
+			requireItems[3] = new ItemStack(Block.getBlockFromName("torchRedstoneActive"), 1, 0);
+			requireItems[4] = new ItemStack(Block.getBlockFromName("glowStone"), 1, 0);
 			requireItems[5] = requireItems[3];
-			requireItems[6] = new ItemStack(Block.blockDiamond, 1, 0);
-			requireItems[7] = new ItemStack(Block.blockGold, 1, 0);
+			requireItems[6] = new ItemStack(Block.getBlockFromName("blockDiamond"), 1, 0);
+			requireItems[7] = new ItemStack(Block.getBlockFromName("blockGold"), 1, 0);
 			requireItems[8] = requireItems[6];
 		}
 
 		recipe = new ShapedRecipes(3, 3, requireItems, craftItem);
 		recipeList.add(recipe);
-
-//		craftItem = new ItemStack(craftBlock, 1, 1);
 	}
 
 	protected static void loadLanguages()
@@ -216,7 +208,7 @@ public class CommonProxy implements IGuiHandler
 	{
 		TileEntity generator;
 
-		generator = world.getBlockTileEntity(x, y, z);
+		generator = world.getTileEntity(x, y, z);
 
 		if(generator != null)
 		{

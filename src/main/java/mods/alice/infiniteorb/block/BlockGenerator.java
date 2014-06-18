@@ -15,13 +15,14 @@ import mods.alice.infiniteorb.item.block.ItemBlockGenerator;
 import mods.alice.infiniteorb.tileentity.TileEntityGenerator;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
@@ -29,24 +30,24 @@ public final class BlockGenerator extends BlockContainer
 {
 	private static final ItemList item = ItemList.GENERATOR;
 	@SideOnly(Side.CLIENT)
-	private Icon iconEU;
+	private IIcon iconEU;
 	@SideOnly(Side.CLIENT)
-	private Icon iconMJ;
+	private IIcon iconMJ;
 
-	public BlockGenerator(int id)
+	public BlockGenerator()
 	{
-		super(id, Material.iron);
+		super(Material.iron);
 
-		disableStats();
-		setCreativeTab(CreativeTabInfiniteOrb.INSTANCE);
-		setHardness(2);
+		this.disableStats();
+		this.setCreativeTab(CreativeTabInfiniteOrb.INSTANCE);
+		this.setHardness(2);
 
 		ItemManager.addBlock(this);
 		GameRegistry.registerBlock(this, ItemBlockGenerator.class, item.itemName);
 	}
 
 	@Override
-	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z)
+	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
 	{
 		EntityItem drop;
 		ItemStack itemDrop;
@@ -54,14 +55,14 @@ public final class BlockGenerator extends BlockContainer
 		boolean removed;
 
 		metaData = world.getBlockMetadata(x, y, z);
-		removed = super.removeBlockByPlayer(world, player, x, y, z);
+		removed = super.removedByPlayer(world, player, x, y, z);
 		if(removed)
 		{
 			if(!player.capabilities.isCreativeMode)
 			{
 				if(!world.isRemote)
 				{
-					itemDrop = new ItemStack(blockID, 1, metaData);
+					itemDrop = new ItemStack(this, 1, metaData);
 					drop = new EntityItem(world, x + 0.5, y + 0.5, z + 0.5, itemDrop);
 
 					world.spawnEntityInWorld(drop);
@@ -73,13 +74,7 @@ public final class BlockGenerator extends BlockContainer
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world)
-	{
-		return null;
-	}
-
-	@Override
-	public TileEntity createTileEntity(World world, int metaData)
+	public TileEntity createNewTileEntity(World world, int metaData)
 	{
 		if(metaData == EnergyType.EU.metaData)
 		{
@@ -95,7 +90,7 @@ public final class BlockGenerator extends BlockContainer
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getIcon(int side, int metaData)
+	public IIcon getIcon(int side, int metaData)
 	{
 		if(metaData == EnergyType.EU.metaData)
 		{
@@ -115,12 +110,12 @@ public final class BlockGenerator extends BlockContainer
 		int metaData;
 
 		metaData = world.getBlockMetadata(x, y, z);
-		return new ItemStack(blockID, 1, metaData);
+		return new ItemStack(this, 1, metaData);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(int id, CreativeTabs tabs, @SuppressWarnings("rawtypes") List _list)
+	public void getSubBlocks(Item id, CreativeTabs tabs, @SuppressWarnings("rawtypes") List _list)
 	{
 		ItemStack itemStack;
 		@SuppressWarnings("unchecked")
@@ -134,9 +129,9 @@ public final class BlockGenerator extends BlockContainer
 	}
 
 	@Override
-	public int idDropped(int metaData, Random random, int fortuneLevel)
+	public Item getItemDropped(int metaData, Random random, int fortuneLevel)
 	{
-		return 0;
+		return null;
 	}
 
 	@Override
@@ -152,9 +147,9 @@ public final class BlockGenerator extends BlockContainer
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister iconRegister)
+	public void registerBlockIcons(IIconRegister iconRegister)
 	{
-		iconEU = iconRegister.registerIcon("infiniteorb:eugenerator");
-		iconMJ = iconRegister.registerIcon("infiniteorb:mjgenerator");
+		this.iconEU = iconRegister.registerIcon("infiniteorb:eugenerator");
+		this.iconMJ = iconRegister.registerIcon("infiniteorb:mjgenerator");
 	}
 }

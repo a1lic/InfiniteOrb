@@ -14,10 +14,9 @@ import mods.alice.infiniteorb.tileentity.TileEntityGenerator;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.multiplayer.NetClientHandler;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -42,23 +41,19 @@ public final class GuiGenerator extends GuiContainer
 	{
 		super(new ContainerGenerator(player.inventory, world, gen));
 
-		energyType = type;
-		generator = gen;
+		this.energyType = type;
+		this.generator = gen;
 
-		guiCaption = StatCollector.translateToLocal(String.format("container.%sgenerator", energyType.prefix));
-		inventoryCaption = StatCollector.translateToLocal("container.inventory");
+		this.guiCaption = StatCollector.translateToLocal(String.format("container.%sgenerator", energyType.prefix));
+		this.inventoryCaption = StatCollector.translateToLocal("container.inventory");
 
-		tickAmount = StatCollector.translateToLocal(String.format("container.%stickamount", energyType.prefix));
-		tickWait = StatCollector.translateToLocal("container.tickwait");
+		this.tickAmount = StatCollector.translateToLocal(String.format("container.%stickamount", energyType.prefix));
+		this.tickWait = StatCollector.translateToLocal("container.tickwait");
 	}
 
 	@Override
 	protected void actionPerformed(GuiButton button)
 	{
-		ByteArrayOutputStream byteOut;
-		DataOutputStream streamOut;
-		NetClientHandler netClient;
-		Packet packet;
 		String text;
 		int num[];
 		boolean failed;
@@ -67,7 +62,7 @@ public final class GuiGenerator extends GuiContainer
 
 		failed = false;
 
-		text = outputAmount.getText();
+		text = this.outputAmount.getText();
 		try
 		{
 			num[0] = Integer.parseInt(text);
@@ -77,7 +72,7 @@ public final class GuiGenerator extends GuiContainer
 			failed = true;
 		}
 
-		text = outputTick.getText();
+		text = this.outputTick.getText();
 		try
 		{
 			num[2] = Integer.parseInt(text);
@@ -87,7 +82,7 @@ public final class GuiGenerator extends GuiContainer
 			failed = true;
 		}
 
-		text = outputPerTick.getText();
+		text = this.outputPerTick.getText();
 		try
 		{
 			num[1] = Integer.parseInt(text);
@@ -99,30 +94,32 @@ public final class GuiGenerator extends GuiContainer
 
 		if(!failed)
 		{
-			generator.updateParameters(num[0], num[1], num[2]);
+			this.generator.updateParameters(num[0], num[1], num[2]);
 
-			byteOut = new ByteArrayOutputStream();
-			streamOut = new DataOutputStream(byteOut);
-			netClient = mc.getNetHandler();
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			DataOutputStream streamOut = new DataOutputStream(byteOut);
+			NetHandlerPlayClient netClient = mc.getNetHandler();
 			try
 			{
 				streamOut.writeByte(0); // TODO: Enum
-				streamOut.writeInt(generator.xCoord);
-				streamOut.writeInt(generator.yCoord);
-				streamOut.writeInt(generator.zCoord);
+				streamOut.writeInt(this.generator.xCoord);
+				streamOut.writeInt(this.generator.yCoord);
+				streamOut.writeInt(this.generator.zCoord);
 				streamOut.writeInt(num[0]);
 				streamOut.writeInt(num[1]);
 				streamOut.writeInt(num[2]);
 
-				packet = new Packet250CustomPayload("INFORB__", byteOut.toByteArray());
-				netClient.addToSendQueue(packet);
+				netClient.addToSendQueue(new C17PacketCustomPayload("INFORB__", byteOut.toByteArray()));
+
+				streamOut.close();
+				byteOut.close();
 			}
 			catch(IOException e)
 			{
 			}
 		}
 
-		mc.thePlayer.closeScreen();
+		this.mc.thePlayer.closeScreen();
 	}
 
 	@Override
@@ -131,22 +128,22 @@ public final class GuiGenerator extends GuiContainer
 		int xCenter, yCenter;
 
 		GL11.glColor4f(1, 1, 1, 1);
-		mc.renderEngine.bindTexture(gui);
+		this.mc.renderEngine.bindTexture(gui);
 
-		xCenter = (width - xSize) / 2;
-		yCenter = (height - ySize) / 2;
+		xCenter = (this.width - this.xSize) / 2;
+		yCenter = (this.height - this.ySize) / 2;
 
-		drawTexturedModalRect(xCenter, yCenter, 0, 0, xSize, ySize);
+		drawTexturedModalRect(xCenter, yCenter, 0, 0, this.xSize, this.ySize);
 	}
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(int x, int y)
 	{
-		fontRenderer.drawString(guiCaption, (xSize - fontRenderer.getStringWidth(guiCaption)) / 2, 6, 0x404040);
-		fontRenderer.drawString(tickAmount, 55, 20, 0x404040);
-		fontRenderer.drawString(tickWait, 55, 35, 0x404040);
-		fontRenderer.drawString("Unit", 55, 50, 0x404040);
-		fontRenderer.drawString(inventoryCaption, 8, ySize - 94, 0x404040);
+		this.fontRendererObj.drawString(this.guiCaption, (this.xSize - this.fontRendererObj.getStringWidth(this.guiCaption)) / 2, 6, 0x404040);
+		this.fontRendererObj.drawString(this.tickAmount, 55, 20, 0x404040);
+		this.fontRendererObj.drawString(this.tickWait, 55, 35, 0x404040);
+		this.fontRendererObj.drawString("Unit", 55, 50, 0x404040);
+		this.fontRendererObj.drawString(this.inventoryCaption, 8, this.ySize - 94, 0x404040);
 	}
 
 	@Override
@@ -156,22 +153,22 @@ public final class GuiGenerator extends GuiContainer
 
 		GL11.glDisable(GL11.GL_LIGHTING);
 
-		frameCount++;
+		this.frameCount++;
 
-		if((frameCount == 5) || (frameCount == 10))
+		if((this.frameCount == 5) || (this.frameCount == 10))
 		{
-			for(GuiTextField f : textFields)
+			for(GuiTextField f : this.textFields)
 			{
 				f.updateCursorCounter();
 			}
 
-			if(frameCount == 10)
+			if(this.frameCount == 10)
 			{
-				frameCount = 0;
+				this.frameCount = 0;
 			}
 		}
 
-		for(GuiTextField f : textFields)
+		for(GuiTextField f : this.textFields)
 		{
 			f.drawTextBox();
 		}
@@ -184,36 +181,36 @@ public final class GuiGenerator extends GuiContainer
 	{
 		Integer num;
 		@SuppressWarnings("unchecked")
-		List<GuiButton> _buttonList = buttonList;
+		List<GuiButton> _buttonList = this.buttonList;
 		int xCenter, yCenter;
 
 		super.initGui();
 
-		xCenter = (width - xSize) / 2;
-		yCenter = (height - ySize) / 2;
+		xCenter = (this.width - this.xSize) / 2;
+		yCenter = (this.height - this.ySize) / 2;
 
-		num = new Integer(generator.outputAmount);
-		outputAmount = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 20, 35, 10);
-		outputAmount.setText(num.toString());
-		outputAmount.setEnableBackgroundDrawing(false);
+		num = new Integer(this.generator.outputAmount);
+		this.outputAmount = new GuiTextField(this.fontRendererObj, xCenter + 10, yCenter + 20, 35, 10);
+		this.outputAmount.setText(num.toString());
+		this.outputAmount.setEnableBackgroundDrawing(false);
 
-		num = new Integer(generator.outputTick);
-		outputTick = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 35, 35, 10);
-		outputTick.setText(num.toString());
-		outputTick.setEnableBackgroundDrawing(false);
+		num = new Integer(this.generator.outputTick);
+		this.outputTick = new GuiTextField(this.fontRendererObj, xCenter + 10, yCenter + 35, 35, 10);
+		this.outputTick.setText(num.toString());
+		this.outputTick.setEnableBackgroundDrawing(false);
 
-		num = new Integer(generator.outputPerTick);
-		outputPerTick = new GuiTextField(fontRenderer, xCenter + 10, yCenter + 50, 35, 10);
-		outputPerTick.setText(num.toString());
-		outputPerTick.setEnableBackgroundDrawing(false);
+		num = new Integer(this.generator.outputPerTick);
+		this.outputPerTick = new GuiTextField(this.fontRendererObj, xCenter + 10, yCenter + 50, 35, 10);
+		this.outputPerTick.setText(num.toString());
+		this.outputPerTick.setEnableBackgroundDrawing(false);
 
-		applyButton = new GuiButton(1, xCenter + 125, yCenter + 45, 40, 20, "OK");
+		this.applyButton = new GuiButton(1, xCenter + 125, yCenter + 45, 40, 20, "OK");
 
-		_buttonList.add(applyButton);
+		_buttonList.add(this.applyButton);
 
-		textFields.add(outputAmount);
-		textFields.add(outputTick);
-		textFields.add(outputPerTick);
+		this.textFields.add(outputAmount);
+		this.textFields.add(outputTick);
+		this.textFields.add(outputPerTick);
 	}
 
 	private static void doKeyTyped(GuiTextField textField, GuiButton button)
@@ -248,11 +245,11 @@ public final class GuiGenerator extends GuiContainer
 	@Override
 	protected void keyTyped(char keyChar, int keyCode)
 	{
-		for(GuiTextField f : textFields)
+		for(GuiTextField f : this.textFields)
 		{
 			if(f.textboxKeyTyped(keyChar, keyCode))
 			{
-				doKeyTyped(f, applyButton);
+				doKeyTyped(f, this.applyButton);
 				return;
 			}
 		}
@@ -265,8 +262,8 @@ public final class GuiGenerator extends GuiContainer
 	{
 		super.mouseClicked(x, y, button);
 
-		outputAmount.mouseClicked(x, y, button);
-		outputTick.mouseClicked(x, y, button);
-		outputPerTick.mouseClicked(x, y, button);
+		this.outputAmount.mouseClicked(x, y, button);
+		this.outputTick.mouseClicked(x, y, button);
+		this.outputPerTick.mouseClicked(x, y, button);
 	}
 }

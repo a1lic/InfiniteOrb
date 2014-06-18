@@ -2,9 +2,9 @@ package mods.alice.infiniteorb.tileentity;
 
 import mods.alice.infiniteorb.EnergyType;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -52,17 +52,24 @@ public abstract class TileEntityGenerator extends TileEntity
 		tag = new NBTTagCompound();
 		writeToNBT(tag);
 
-		return new Packet132TileEntityData(xCoord, yCoord, zCoord, 1, tag);
+		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, tag);
 	}
 
 	@Override
-	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt)
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
 	{
-		if((pkt.xPosition == xCoord) && (pkt.yPosition == yCoord) && (pkt.zPosition == zCoord))
+		if((pkt.func_148856_c() == xCoord) && (pkt.func_148855_d() == yCoord) && (pkt.func_148854_e() == zCoord) && (pkt.func_148853_f() == 1))
 		{
-			if(pkt.data != null)
+			NBTTagCompound tag = pkt.func_148857_g();
+			if(tag != null)
 			{
-				readFromNBT(pkt.data);
+				try
+				{
+					readFromNBT(tag);
+				}
+				catch(Exception e)
+				{
+				}
 			}
 		}
 	}

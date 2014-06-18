@@ -1,7 +1,7 @@
 package mods.alice.infiniteorb.tileentity;
 
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import buildcraft.api.power.IPowerEmitter;
 import buildcraft.api.power.IPowerReceptor;
 import buildcraft.api.power.PowerHandler;
@@ -46,7 +46,7 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 	{
 		PowerReceiver h;
 		TileEntity tile;
-		float currentPower, maxPower, amountToSupply, powerPerTick;
+		double currentPower, maxPower, amountToSupply, powerPerTick;
 
 		if(worldObj.isRemote)
 		{
@@ -57,17 +57,17 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 		{
 			// Check tile entities around this block.
 			// NORTH
-			tiles[0] = worldObj.getBlockTileEntity(xCoord, yCoord, zCoord - 1);
+			tiles[0] = worldObj.getTileEntity(xCoord, yCoord, zCoord - 1);
 			// SOUTH
-			tiles[1] = worldObj.getBlockTileEntity(xCoord, yCoord, zCoord + 1);
+			tiles[1] = worldObj.getTileEntity(xCoord, yCoord, zCoord + 1);
 			// WEST
-			tiles[2] = worldObj.getBlockTileEntity(xCoord - 1, yCoord, zCoord);
+			tiles[2] = worldObj.getTileEntity(xCoord - 1, yCoord, zCoord);
 			// EAST
-			tiles[3] = worldObj.getBlockTileEntity(xCoord + 1, yCoord, zCoord);
+			tiles[3] = worldObj.getTileEntity(xCoord + 1, yCoord, zCoord);
 			// UP
-			tiles[4] = worldObj.getBlockTileEntity(xCoord, yCoord + 1, zCoord);
+			tiles[4] = worldObj.getTileEntity(xCoord, yCoord + 1, zCoord);
 			// BOTTOM
-			tiles[5] = worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
+			tiles[5] = worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 
 			tick = 0;
 		}

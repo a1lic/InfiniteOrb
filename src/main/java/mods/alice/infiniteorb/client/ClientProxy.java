@@ -17,7 +17,7 @@ public final class ClientProxy extends CommonProxy
 		TileEntity generator;
 		int meta;
 
-		generator = world.getBlockTileEntity(x, y, z);
+		generator = world.getTileEntity(x, y, z);
 
 		if(generator != null)
 		{

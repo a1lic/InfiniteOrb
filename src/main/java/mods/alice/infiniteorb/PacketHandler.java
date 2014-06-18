@@ -1,39 +1,45 @@
 package mods.alice.infiniteorb;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.ByteArrayInputStream;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
 import mods.alice.infiniteorb.tileentity.TileEntityGenerator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.Player;
 
-public final class PacketHandler implements IPacketHandler
+public final class PacketHandler
 {
-	@Override
-	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+	@SubscribeEvent
+	public void onServerPacket(ServerCustomPacketEvent event)
 	{
-		InputStream byteIn;
-		DataInput streamIn;
-
-		if(packet.channel.equals("INFORB__"))
+		String channel = event.packet.channel();
+		if(channel.equals("INFORB__"))
 		{
-			byteIn = new ByteArrayInputStream(packet.data);
-			streamIn = new DataInputStream(byteIn);
+			NetHandlerPlayServer playerServer = (NetHandlerPlayServer)event.handler;
+			ByteBuf data = event.packet.payload();
 
 			try
 			{
-				doInfiniteOrb(streamIn, (EntityPlayer)player);
+				byte[] rawData = data.array();
+				InputStream byteIn = new ByteArrayInputStream(rawData);
+				DataInputStream streamIn = new DataInputStream(byteIn);
+
+				doInfiniteOrb(streamIn, playerServer.playerEntity);
+
+				streamIn.close();
+				byteIn.close();
 			}
 			catch(IOException e)
 			{
@@ -41,7 +47,12 @@ public final class PacketHandler implements IPacketHandler
 		}
 	}
 
-	private static void doInfiniteOrb(DataInput stream, EntityPlayer player) throws IOException
+	@SubscribeEvent
+	public void onClientPacket(ClientCustomPacketEvent event)
+	{
+	}
+
+	private static void doInfiniteOrb(DataInputStream stream, EntityPlayer player) throws IOException
 	{
 		Packet pkt;
 		TileEntity entity;
@@ -61,7 +72,7 @@ public final class PacketHandler implements IPacketHandler
 
 			world = player.worldObj;
 
-			entity = world.getBlockTileEntity(nums[0], nums[1], nums[2]);
+			entity = world.getTileEntity(nums[0], nums[1], nums[2]);
 			if(entity == null)
 			{
 				return;
@@ -88,14 +99,14 @@ public final class PacketHandler implements IPacketHandler
 
 				for(EntityPlayer p : playerList)
 				{
-					if(p == player)
-					{
-						continue;
-					}
+//					if(p == player)
+//					{
+//						continue;
+//					}
 
 					if(p instanceof EntityPlayerMP)
 					{
-						((EntityPlayerMP)p).playerNetServerHandler.sendPacketToPlayer(pkt);
+						((EntityPlayerMP)p).playerNetServerHandler.sendPacket(pkt);
 					}
 				}
 			}
