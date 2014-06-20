@@ -2,6 +2,8 @@ package mods.alice.infiniteorb.tileentity;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
+import buildcraft.api.mj.IBatteryObject;
+import buildcraft.api.mj.MjAPI;
 import buildcraft.api.power.IPowerEmitter;
 import buildcraft.api.power.IPowerReceptor;
 import buildcraft.api.power.PowerHandler;
@@ -44,9 +46,7 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 	@Override
 	public void updateEntity()
 	{
-		PowerReceiver h;
 		TileEntity tile;
-		double currentPower, maxPower, amountToSupply, powerPerTick;
 
 		if(worldObj.isRemote)
 		{
@@ -107,49 +107,82 @@ public final class TileEntityGeneratorMJ extends TileEntityGenerator implements 
 				{
 					continue;
 				}
-				if(!(tile instanceof IPowerReceptor))
-				{
-					continue;
-				}
 
-				h = ((IPowerReceptor)tile).getPowerReceiver(oSides[i]);
+				double currentPower = 0;
+				double maxPower = 0;
+				double powerPerTick = 0;
+				PowerReceiver h = null;
+				IBatteryObject battery = null;
+
+				if(tile instanceof IPowerReceptor)
+				{
+					h = ((IPowerReceptor)tile).getPowerReceiver(oSides[i]);
+					if(h != null)
+					{
+						currentPower = h.getEnergyStored();
+						maxPower = h.getMaxEnergyStored();
+						powerPerTick = h.getMaxEnergyReceived();
+					}
+				}
 
 				if(h == null)
 				{
-					continue;
+					battery = MjAPI.getMjBattery(tile, MjAPI.DEFAULT_POWER_FRAMEWORK, oSides[i]);
+					if(battery != null)
+					{
+						currentPower = battery.getEnergyStored();
+						maxPower = battery.maxCapacity();
+						powerPerTick = battery.maxReceivedPerCycle();
+					}
 				}
 
-				currentPower = h.getEnergyStored();
-				maxPower = h.getMaxEnergyStored();
-				powerPerTick = h.getMaxEnergyReceived();
+				if((maxPower <= 0) || (powerPerTick <= 0))
+				{
+					continue;
+				}
 
 				if(currentPower >= maxPower)
 				{
 					continue;
 				}
 
-				amountToSupply = maxPower - currentPower;
+				double amountToSupply = maxPower - currentPower;
 
-				if(amountToSupply > outputAmount)
+				if(amountToSupply > this.outputAmount)
 				{
-					amountToSupply = outputAmount;
+					amountToSupply = this.outputAmount;
 				}
 
 				if(powerPerTick > this.outputPerTick)
 				{
-					powerPerTick = outputPerTick;
+					powerPerTick = this.outputPerTick;
 				}
 
 				try
 				{
-					for(; amountToSupply >= powerPerTick; amountToSupply -= powerPerTick)
+					if(battery != null)
 					{
-						h.receiveEnergy(PowerHandler.Type.ENGINE, powerPerTick, sides[i]);
-					}
+						for(; amountToSupply >= powerPerTick; amountToSupply -= powerPerTick)
+						{
+							battery.addEnergy(powerPerTick, false);
+						}
 
-					if(amountToSupply > 0)
+						if(amountToSupply > 0)
+						{
+							battery.addEnergy(amountToSupply, false);
+						}
+					}
+					else if(h != null)
 					{
-						h.receiveEnergy(PowerHandler.Type.ENGINE, amountToSupply, sides[i]);
+						for(; amountToSupply >= powerPerTick; amountToSupply -= powerPerTick)
+						{
+							h.receiveEnergy(PowerHandler.Type.ENGINE, powerPerTick, sides[i]);
+						}
+	
+						if(amountToSupply > 0)
+						{
+							h.receiveEnergy(PowerHandler.Type.ENGINE, amountToSupply, sides[i]);
+						}
 					}
 				}
 				catch(Exception e)

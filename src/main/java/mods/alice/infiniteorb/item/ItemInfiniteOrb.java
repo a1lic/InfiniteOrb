@@ -1,12 +1,15 @@
 package mods.alice.infiniteorb.item;
 
-import java.util.List;
-
 import ic2.api.info.IEnergyValueProvider;
 import ic2.api.item.IElectricItemManager;
 import ic2.api.item.ISpecialElectricItem;
+
+import java.util.List;
+
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mods.alice.infiniteorb.ItemList;
 import mods.alice.infiniteorb.ItemManager;
 import mods.alice.infiniteorb.creativetab.CreativeTabInfiniteOrb;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -28,6 +31,7 @@ public final class ItemInfiniteOrb extends Item implements ISpecialElectricItem,
 		setUnlocalizedName("infiniteorb");
 
 		ItemManager.addItem(this);
+		GameRegistry.registerItem(this, ItemList.INFINITEORB.itemName);
 	}
 
 	/* IEnergyValueProvider implementations */

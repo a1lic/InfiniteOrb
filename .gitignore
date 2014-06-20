@@ -4,17 +4,13 @@
 /build
 /eclipse
 /gradle
+/logs
 
-/CREDITS-fml.txt
-/LICENSE-fml.txt
-/MinecraftForge-Credits.txt
-/MinecraftForge-License.txt
-/README.txt
-/forge-1.7.2-10.12.1.1060-changelog.txt
+/*.txt
 /gradlew
 /gradlew.bat
-/ic2api-2.1.478.jar
-/src164.zip
+*.jar
+*.zip
 
 .classpath
 .project

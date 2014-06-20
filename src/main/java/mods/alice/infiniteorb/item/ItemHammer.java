@@ -1,9 +1,13 @@
 package mods.alice.infiniteorb.item;
 
+import buildcraft.api.mj.IBatteryObject;
+import buildcraft.api.mj.MjAPI;
 import buildcraft.api.power.IPowerReceptor;
 import buildcraft.api.power.PowerHandler;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mods.alice.infiniteorb.ItemList;
 import mods.alice.infiniteorb.ItemManager;
 import mods.alice.infiniteorb.creativetab.CreativeTabInfiniteOrb;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -25,6 +29,7 @@ public final class ItemHammer extends Item
 		this.setUnlocalizedName("hammer");
 
 		ItemManager.addItem(this);
+		GameRegistry.registerItem(this, ItemList.HAMMER.itemName);
 	}
 
 	@Override
@@ -57,14 +62,17 @@ public final class ItemHammer extends Item
 
 		h = ((IPowerReceptor)tile).getPowerReceiver(sideDirection);
 
-		if(h == null)
-		{
-			return false;
-		}
-
-		if(!world.isRemote)
+		if(h != null)
 		{
 			h.receiveEnergy(PowerHandler.Type.ENGINE, 1, opposite);
+		}
+		else
+		{
+			IBatteryObject battery = MjAPI.getMjBattery(tile, MjAPI.DEFAULT_POWER_FRAMEWORK, opposite);
+			if(battery != null)
+			{
+				battery.addEnergy(1, false);
+			}
 		}
 
 		return true;
