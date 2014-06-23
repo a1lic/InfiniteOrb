@@ -10,7 +10,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = "infiniteorb", version = "0.7")
+@Mod(modid = "infiniteorb", name = "無限オーブMOD", version = "0.7")
 public final class InfiniteOrb
 {
 	@Mod.Instance("infiniteorb")
