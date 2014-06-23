@@ -2,15 +2,7 @@ package mods.alice.infiniteorb;
 
 import ic2.api.item.IC2Items;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +24,6 @@ import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public class CommonProxy implements IGuiHandler
 {
@@ -41,8 +32,6 @@ public class CommonProxy implements IGuiHandler
 		addBlocks();
 		addItems();
 		addTileEntity();
-
-		loadLanguages();
 	}
 
 	public void init(InfiniteOrb instance)
@@ -93,7 +82,7 @@ public class CommonProxy implements IGuiHandler
 		requireItems[1] = new ItemStack(Block.getBlockFromName("beacon"), 1, 0);
 
 		requireItems[0] = IC2Items.getItem("iridiumPlate");
-		if(requireItems[0] != null)
+		if(requireItems[0].getItem() != null)
 		{
 			requireItems[2] = requireItems[0];
 			requireItems[3] = IC2Items.getItem("elemotor");
@@ -108,99 +97,47 @@ public class CommonProxy implements IGuiHandler
 			requireItems[0] = new ItemStack((Item)Item.itemRegistry.getObject("diamond"), 1, 0);
 
 			requireItems[2] = requireItems[0];
-			requireItems[3] = new ItemStack(Block.getBlockFromName("torchRedstoneActive"), 1, 0);
-			requireItems[4] = new ItemStack(Block.getBlockFromName("glowStone"), 1, 0);
-			requireItems[5] = requireItems[3];
-			requireItems[6] = new ItemStack(Block.getBlockFromName("blockDiamond"), 1, 0);
-			requireItems[7] = new ItemStack(Block.getBlockFromName("blockGold"), 1, 0);
+			requireItems[3] = new ItemStack(Block.getBlockFromName("redstone_torch"), 1, 0);
+			requireItems[4] = new ItemStack(Block.getBlockFromName("glowstone"), 1, 0);
+			requireItems[5] = new ItemStack(Block.getBlockFromName("torch"), 1, 0);
+			requireItems[6] = new ItemStack(Block.getBlockFromName("diamond_block"), 1, 0);
+			requireItems[7] = new ItemStack(Block.getBlockFromName("gold_block"), 1, 0);
 			requireItems[8] = requireItems[6];
 		}
 
 		recipe = new ShapedRecipes(3, 3, requireItems, craftItem);
 		recipeList.add(recipe);
-	}
 
-	protected static void loadLanguages()
-	{
-		InputStream languageListFile;
-		InputStreamReader reader;
-		LanguageRegistry lang;
-		LineNumberReader lineReader;
-		List<String> languageList;
-		Matcher m;
-		Pattern r;
-		String line, matchedLine;
+		craftItem = new ItemStack(craftBlock, 1, 1);
+		requireItems = new ItemStack[9];
+		requireItems[1] = new ItemStack(Block.getBlockFromName("beacon"), 1, 0);
 
-		lang = LanguageRegistry.instance();
-		languageListFile = CommonProxy.class.getResourceAsStream("/assets/infiniteorb/lang/languages.txt");
-
-		if(languageListFile == null)
+		requireItems[0] = new ItemStack(Block.getBlockFromName("laserBlock"), 1, 0);
+		if(requireItems[0].getItem() != null)
 		{
-			// Load en_US when no language list.
-			loadLang(lang, "en_US");
-			return;
+			requireItems[2] = requireItems[0];
+			requireItems[3] = new ItemStack((Item)Item.itemRegistry.getObject("diamondGearItem"), 1, 0);
+			requireItems[4] = requireItems[0];
+			requireItems[5] = requireItems[3];
+			requireItems[6] = new ItemStack((Item)Item.itemRegistry.getObject("redstoneChipset"), 1, 3);
+			requireItems[7] = requireItems[4];
+			requireItems[8] = requireItems[6];
+		}
+		else
+		{
+			requireItems[0] = new ItemStack((Item)Item.itemRegistry.getObject("diamond"), 1, 0);
+
+			requireItems[2] = requireItems[0];
+			requireItems[3] = new ItemStack(Block.getBlockFromName("torch"), 1, 0);
+			requireItems[4] = new ItemStack(Block.getBlockFromName("glowstone"), 1, 0);
+			requireItems[5] = new ItemStack(Block.getBlockFromName("redstone_torch"), 1, 0);
+			requireItems[6] = new ItemStack(Block.getBlockFromName("diamond_block"), 1, 0);
+			requireItems[7] = new ItemStack(Block.getBlockFromName("gold_block"), 1, 0);
+			requireItems[8] = requireItems[6];
 		}
 
-		reader = new InputStreamReader(languageListFile, StandardCharsets.US_ASCII);
-		lineReader = new LineNumberReader(reader);
-
-		languageList = new ArrayList<String>();
-		r = Pattern.compile("([a-z]{2}_[A-Z]{2})");
-
-		for(;;)
-		{
-			try
-			{
-				line = lineReader.readLine();
-			}
-			catch(IOException e)
-			{
-				break;
-			}
-
-			if(line == null)
-			{
-				break;
-			}
-
-			if(line.length() > 0)
-			{
-				m = r.matcher(line);
-
-				if(m.find())
-				{
-					matchedLine = m.group();
-
-					languageList.add(matchedLine);
-				}
-			}
-		}
-
-		try
-		{
-			lineReader.close();
-			reader.close();
-			languageListFile.close();
-		}
-		catch(IOException e)
-		{
-		}
-
-		if(languageList.size() > 0)
-		{
-			for(String langName : languageList)
-			{
-				loadLang(lang, langName);
-			}
-		}
-	}
-
-	protected static void loadLang(LanguageRegistry lang, String langName)
-	{
-		String langPath;
-
-		langPath = String.format("/assets/infiniteorb/lang/%s.txt", langName);
-		lang.loadLocalization(langPath, langName, false);
+		recipe = new ShapedRecipes(3, 3, requireItems, craftItem);
+		recipeList.add(recipe);
 	}
 
 	@Override
